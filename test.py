@@ -113,7 +113,7 @@ denoise_generator = SRDTrans(
 
 if torch.cuda.is_available():
     print('\033[1;31mUsing {} GPU(s) for testing -----> \033[0m'.format(torch.cuda.device_count()))
-    denoise_generator = denoise_generator.cuda()
+    denoise_generator = denoise_generator.float().cuda()
     denoise_generator = nn.DataParallel(denoise_generator, device_ids=range(opt.ngpu))
 cuda = True if torch.cuda.is_available() else False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
@@ -140,7 +140,7 @@ def test():
             else:
                 denoise_generator.load_state_dict(torch.load(model_name))  # not parallel
                 denoise_generator.eval()
-            denoise_generator.cuda()
+            denoise_generator.float().cuda()
 
             # test all stacks
             for N in range(len(img_list)):
@@ -158,7 +158,7 @@ def test():
                 testloader = DataLoader(test_data, batch_size=opt.batch_size, shuffle=False)
                 with torch.no_grad():
                     for iteration, (noise_patch, single_coordinate) in enumerate(testloader):
-                        noise_patch = noise_patch.cuda()
+                        noise_patch = noise_patch.float().cuda()
 
                         real_A = noise_patch
                         real_A = Variable(real_A)
@@ -241,3 +241,4 @@ def test():
 
 if __name__ == "__main__":
     test()
+
